@@ -3,6 +3,7 @@ import { getRandomColor } from "../utils";
 
 function ControlsTab({
   robotWidthState: [robotWidth, setRobotWidth],
+  robotHeightState: [robotHeight, setRobotHeight],
   startPointState: [startPoint, setStartPoint],
   linesState: [lines, setLines],
   percentState: [percent, setPercent],
@@ -10,6 +11,7 @@ function ControlsTab({
   togglePlaying,
 }: {
   robotWidthState: [number, React.Dispatch<React.SetStateAction<number>>];
+  robotHeightState: [number, React.Dispatch<React.SetStateAction<number>>];
   startPointState: [Point, React.Dispatch<React.SetStateAction<Point>>];
   linesState: [Line[], React.Dispatch<React.SetStateAction<Line[]>>];
   percentState: [number, React.Dispatch<React.SetStateAction<number>>];
@@ -30,6 +32,17 @@ function ControlsTab({
               value={robotWidth}
               onChange={(e) => {
                 setRobotWidth(parseFloat(e.target.value));
+              }}
+            />
+
+            <div className="font-extralight">Robot Height:</div>
+            <input
+              type="number"
+              className="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16"
+              step="1"
+              value={robotHeight}
+              onChange={(e) => {
+                setRobotHeight(parseFloat(e.target.value));
               }}
             />
           </div>
@@ -57,10 +70,18 @@ function ControlsTab({
               className="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
               step="0.1"
               value={startPoint.y}
+              onChange={(e) => {}}
+            />
+            <div className="font-extralight">Heading:</div>
+            <input
+              className="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-14"
+              step="1"
+              type="number"
+              value={startPoint.heading}
               onChange={(e) => {
                 setStartPoint((_startPoint) => ({
                   ..._startPoint,
-                  y: parseFloat(e.target.value),
+                  heading: parseFloat(e.target.value),
                 }));
               }}
             />

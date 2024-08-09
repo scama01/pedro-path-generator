@@ -1,3 +1,5 @@
+export const DPI = 96 / 6;
+
 export function getLineXYatPercent(
   startPt: Point | ControlPoint,
   endPt: Point | ControlPoint,
@@ -95,9 +97,11 @@ export function getRobotCoordinates(
         )
       : null;
 
-  let robotHeading =
-    _startPoint.heading +
-    (currentLine.endPoint.heading - _startPoint.heading) * linePercent;
+  let robotHeading = shortestRotation(
+    _startPoint.heading,
+    currentLine.endPoint.heading,
+    linePercent
+  );
 
   return { robotXY, robotHeading };
 }
@@ -112,14 +116,38 @@ export function isPointInCircle(
   point: Point | ControlPoint,
   x: number,
   y: number,
-  pointRadius: number,
-  scalingFactor: number
+  pointRadius: number
 ) {
-  const dx = point.x * scalingFactor - x;
-  const dy = point.y * scalingFactor - y;
-  return dx * dx + dy * dy <= pointRadius * pointRadius;
+  const dx = point.x * DPI - x;
+  const dy = point.y * DPI - y;
+  return dx * dx + dy * dy <= pointRadius * DPI * (pointRadius * DPI);
 }
 
 export function easeInOutQuad(x: number): number {
   return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+}
+
+export function transformAngle(angle: number) {
+  return ((angle + 180) % 360) - 180;
+}
+
+function shortestRotation(startAngle: number, endAngle: number, t: number) {
+  // Normalize the angles to be between -180 and 180 degrees
+  startAngle = (startAngle + 360) % 360;
+  endAngle = (endAngle + 360) % 360;
+  if (startAngle > 180) startAngle -= 360;
+  if (endAngle > 180) endAngle -= 360;
+
+  // Calculate the difference
+  let delta = endAngle - startAngle;
+
+  // Find the shortest path
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  // Interpolate the angle based on the percentage
+  let result = startAngle + delta * t;
+
+  // Normalize the result to be between 0 and 360
+  return transformAngle(result);
 }
