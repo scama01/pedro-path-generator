@@ -138,7 +138,7 @@ function App() {
       robotXY!.y * DPI - (robotHeight * DPI) / 2,
       robotWidth * DPI,
       robotHeight * DPI,
-      -robotHeading
+      robotHeading
     );
     globalCtx.drawImage(pointCanvas, 0, 0, 144 * DPI, 144 * DPI);
     globalCtx.drawImage(lineCanvas, 0, 0, 144 * DPI, 144 * DPI);
@@ -236,7 +236,7 @@ function App() {
           <img
             alt="Field"
             src="/fields/centerstage.webp"
-            className="absolute top-0 left-0 w-full h-full rotate-90 pointer-events-none rounded-lg"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none rounded-lg"
           />
           <canvas
             className="absolute top-0 left-0 w-full h-full z-40 rounded-lg"
