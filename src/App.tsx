@@ -232,7 +232,7 @@ function App() {
         </div>
       </div>
       <div className="flex flex-row justify-center items-center gap-4 p-2 w-full h-full">
-        <div className="w-full max-w-4xl aspect-square bg-neutral-50 border-[1px] rounded-lg relative">
+        <div className="w-full max-w-3xl aspect-square bg-neutral-50 border-[1px] rounded-lg relative">
           <img
             alt="Field"
             src="/fields/centerstage.webp"
