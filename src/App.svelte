@@ -42,16 +42,16 @@
   let startPoint = {
     x: 7.396,
     y: 84.983,
-    heading: 90,
+    heading: 0,
   };
   let lines = [
     {
-      endPoint: { x: 36.668, y: 84.983, heading: 90 },
+      endPoint: { x: 36.668, y: 84.983, heading: 0 },
       controlPoints: [],
       color: getRandomColor(),
     },
     {
-      endPoint: { x: 36.196, y: 122.124, heading: 180 },
+      endPoint: { x: 36.196, y: 122.124, heading: -90 },
       controlPoints: [
         { x: 25.495, y: 95.842 },
         { x: 44.065, y: 107.016 },
@@ -59,12 +59,12 @@
       color: getRandomColor(),
     },
     {
-      endPoint: { x: 35.881, y: 13.691, heading: 180 },
+      endPoint: { x: 35.881, y: 13.691, heading: -90 },
       controlPoints: [],
       color: getRandomColor(),
     },
     {
-      endPoint: { x: 42.334, y: 121.809, heading: 180 },
+      endPoint: { x: 42.334, y: 121.809, heading: -90 },
       controlPoints: [{ x: 120.393, y: 42.019 }],
       color: getRandomColor(),
     },
@@ -181,7 +181,7 @@
       currentLineIdx - Math.floor(currentLineIdx)
     );
     robotXY = currentLinePath.getPointAt(linePercent) as BasePoint;
-    robotHeading = shortestRotation(
+    robotHeading = -shortestRotation(
       _startPoint.heading,
       currentLine.endPoint.heading,
       linePercent
@@ -265,7 +265,7 @@
     robotCtx.strokeStyle = "red";
     robotCtx.lineWidth = x(0.75) * 2;
     robotCtx.beginPath();
-    robotCtx.moveTo(robotCanvas.width / 2, 0);
+    robotCtx.moveTo(robotCanvas.width, robotCanvas.width / 2);
     robotCtx.lineTo(robotCanvas.width / 2, robotCanvas.width / 2);
     robotCtx.stroke();
 
