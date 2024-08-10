@@ -19,7 +19,7 @@
 
   let pointRadius = 1.15;
   let lineWidth = 0.57;
-  let robotWidth = 15.5;
+  let robotWidth = 19;
 
   let percent: number = 0;
 
@@ -40,7 +40,7 @@
   let robotImage: string;
 
   let startPoint = {
-    x: 7.396,
+    x: 9.757,
     y: 84.983,
     heading: 0,
   };
@@ -346,7 +346,7 @@
         class="absolute top-0 left-0 w-full h-full rounded-lg z-10 pointer-events-none"
       />
       <img
-        src={robotImage}
+        src={"/robot.png"}
         width={x(robotWidth)}
         alt="Robot"
         height={x(robotWidth)}
