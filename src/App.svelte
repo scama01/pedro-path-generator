@@ -226,7 +226,7 @@
       if (percent >= 100) {
         percent = 0;
       } else {
-        percent += 0.15 * (deltaTime * 0.1);
+        percent += (0.7 / lines.length) * (deltaTime * 0.1);
       }
     }
 
