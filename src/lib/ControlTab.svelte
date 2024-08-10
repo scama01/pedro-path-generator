@@ -9,6 +9,7 @@
   export let startPoint: Point;
   export let lines: Line[];
   export let robotWidth: number;
+  export let robotHeight: number;
 </script>
 
 <div class="flex-1 flex flex-col justify-start items-center gap-2 h-full">
@@ -21,6 +22,13 @@
         <div class="font-extralight">Robot Width:</div>
         <input
           bind:value={robotWidth}
+          type="number"
+          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16"
+          step="1"
+        />
+        <div class="font-extralight">Robot Height:</div>
+        <input
+          bind:value={robotHeight}
           type="number"
           class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16"
           step="1"

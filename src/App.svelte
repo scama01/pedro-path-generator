@@ -20,6 +20,7 @@
   let pointRadius = 1.15;
   let lineWidth = 0.57;
   let robotWidth = 19;
+  let robotHeight = 18;
 
   let percent: number = 0;
 
@@ -348,9 +349,9 @@
       <img
         src={"/robot.png"}
         width={x(robotWidth)}
+        height={x(robotHeight)}
         alt="Robot"
-        height={x(robotWidth)}
-        style={`position: absolute; top: ${robotXY.y}px; left: ${robotXY.x}px; transform: translate(-50%, -50%) rotate(${robotHeading}deg); z-index: 20;`}
+        style={`position: absolute; top: ${robotXY.y}px; left: ${robotXY.x}px; transform: translate(-50%, -50%) rotate(${robotHeading}deg); z-index: 20; width: ${x(robotWidth)}px; height: ${x(robotHeight)}px;`}
       />
     </div>
   </div>
@@ -361,6 +362,7 @@
     bind:startPoint
     bind:lines
     bind:robotWidth
+    bind:robotHeight
     bind:percent
   />
 </div>
