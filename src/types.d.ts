@@ -1,11 +1,13 @@
-interface Point {
+interface BasePoint {
   x: number;
   y: number;
-  isDragging: boolean;
+}
+
+interface Point extends BasePoint {
   heading: number;
 }
 
-type ControlPoint = Omit<Point, "heading">;
+type ControlPoint = BasePoint;
 
 interface Line {
   endPoint: Point;

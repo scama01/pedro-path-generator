@@ -1,49 +1,32 @@
 {
-  "name": "pedro-path-gen",
-  "version": "0.1.0",
+  "name": "pedro-path-generator",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/lodash": "^4.17.7",
-    "@types/node": "^16.18.104",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "lodash": "^4.17.21",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "sass": "^1.77.8",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.7"
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@tsconfig/svelte": "^5.0.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "svelte": "^4.2.18",
+    "svelte-check": "^3.8.5",
+    "tailwindcss": "^3.4.9",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/lodash": "^4.17.7",
+    "d3": "^7.9.0",
+    "lodash": "^4.17.21",
+    "sass": "^1.77.8",
+    "two.js": "^0.8.14"
   }
 }

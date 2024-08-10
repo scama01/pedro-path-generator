@@ -1,137 +1,62 @@
-export const DPI = 96 / 6;
+export function quadraticToCubic(
+  P0: BasePoint,
+  P1: BasePoint,
+  P2: BasePoint
+): { Q1: BasePoint; Q2: BasePoint } {
+  const Q1 = {
+    x: P0.x + (2 / 3) * (P1.x - P0.x),
+    y: P0.y + (2 / 3) * (P1.y - P0.y),
+  };
 
-export function getLineXYatPercent(
-  startPt: Point | ControlPoint,
-  endPt: Point | ControlPoint,
-  percent: number
-) {
-  let dx = endPt.x - startPt.x;
-  let dy = endPt.y - startPt.y;
-  let X = startPt.x + dx * percent;
-  let Y = startPt.y + dy * percent;
-  return { x: X, y: Y };
-}
+  const Q2 = {
+    x: P2.x + (2 / 3) * (P1.x - P2.x),
+    y: P2.y + (2 / 3) * (P1.y - P2.y),
+  };
 
-export function getCubicBezierXYatPercent(
-  startPt: Point | ControlPoint,
-  controlPt1: Point | ControlPoint,
-  controlPt2: Point | ControlPoint,
-  endPt: Point | ControlPoint,
-  percent: number
-) {
-  let x = CubicN(percent, startPt.x, controlPt1.x, controlPt2.x, endPt.x);
-  let y = CubicN(percent, startPt.y, controlPt1.y, controlPt2.y, endPt.y);
-  return { x: x, y: y };
-}
-
-export function getQuadraticBezierXYatPercent(
-  startPt: Point | ControlPoint,
-  controlPt: Point | ControlPoint,
-  endPt: Point | ControlPoint,
-  percent: number
-) {
-  let x =
-    Math.pow(1 - percent, 2) * startPt.x +
-    2 * (1 - percent) * percent * controlPt.x +
-    Math.pow(percent, 2) * endPt.x;
-  let y =
-    Math.pow(1 - percent, 2) * startPt.y +
-    2 * (1 - percent) * percent * controlPt.y +
-    Math.pow(percent, 2) * endPt.y;
-  return { x: x, y: y };
-}
-
-export function CubicN(
-  pct: number,
-  a: number,
-  b: number,
-  c: number,
-  d: number
-) {
-  let t2 = pct * pct;
-  let t3 = t2 * pct;
-  return (
-    a +
-    (-a * 3 + pct * (3 * a - a * pct)) * pct +
-    (3 * b + pct * (-6 * b + b * 3 * pct)) * pct +
-    (c * 3 - c * 3 * pct) * t2 +
-    d * t3
-  );
-}
-
-export function getRobotCoordinates(
-  percent: number,
-  lines: Line[],
-  startPoint: Point
-) {
-  let _percent = (percent * 1.0) / 10;
-
-  let currentLineIdx = (lines.length * _percent) / 100;
-  let currentLine =
-    lines[Math.min(Math.trunc(currentLineIdx), lines.length - 1)];
-
-  let _startPoint =
-    Math.floor(currentLineIdx) === 0
-      ? startPoint
-      : lines[Math.floor(currentLineIdx) - 1].endPoint;
-
-  let linePercent = easeInOutQuad(currentLineIdx - Math.floor(currentLineIdx));
-
-  let robotXY =
-    currentLine.controlPoints.length === 0
-      ? getLineXYatPercent(_startPoint, currentLine.endPoint, linePercent)
-      : currentLine.controlPoints.length === 1
-      ? getQuadraticBezierXYatPercent(
-          _startPoint,
-          currentLine.controlPoints[0],
-          currentLine.endPoint,
-          linePercent
-        )
-      : currentLine.controlPoints.length === 2
-      ? getCubicBezierXYatPercent(
-          _startPoint,
-          currentLine.controlPoints[0],
-          currentLine.controlPoints[1],
-          currentLine.endPoint,
-          linePercent
-        )
-      : null;
-
-  let robotHeading = shortestRotation(
-    _startPoint.heading,
-    currentLine.endPoint.heading,
-    linePercent
-  );
-
-  return { robotXY, robotHeading };
-}
-
-export function inOutQuad(n: number) {
-  n *= 2;
-  if (n < 1) return 0.5 * n * n;
-  return -0.5 * (--n * (n - 2) - 1);
-}
-
-export function isPointInCircle(
-  point: Point | ControlPoint,
-  x: number,
-  y: number,
-  pointRadius: number
-) {
-  const dx = point.x * DPI - x;
-  const dy = point.y * DPI - y;
-  return dx * dx + dy * dy <= pointRadius * DPI * (pointRadius * DPI);
+  return { Q1, Q2 };
 }
 
 export function easeInOutQuad(x: number): number {
   return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 }
 
+export function getMousePos(evt: MouseEvent, canvas: any) {
+  let rect = canvas.getBoundingClientRect();
+  return {
+    x:
+      ((evt.clientX - rect.left) / (rect.right - rect.left)) *
+      canvas.width.baseVal.value,
+    y:
+      ((evt.clientY - rect.top) / (rect.bottom - rect.top)) *
+      canvas.height.baseVal.value,
+  };
+}
+
+export function vh(percent: number) {
+  var h = Math.max(
+    document.documentElement.clientHeight,
+    window.innerHeight || 0
+  );
+  return (percent * h) / 100;
+}
+
+export function vw(percent: number) {
+  var w = Math.max(
+    document.documentElement.clientWidth,
+    window.innerWidth || 0
+  );
+  return (percent * w) / 100;
+}
+
 export function transformAngle(angle: number) {
   return ((angle + 180) % 360) - 180;
 }
 
-function shortestRotation(startAngle: number, endAngle: number, t: number) {
+export function shortestRotation(
+  startAngle: number,
+  endAngle: number,
+  t: number
+) {
   // Normalize the angles to be between -180 and 180 degrees
   startAngle = (startAngle + 360) % 360;
   endAngle = (endAngle + 360) % 360;
