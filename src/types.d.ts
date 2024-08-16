@@ -3,9 +3,30 @@ interface BasePoint {
   y: number;
 }
 
-interface Point extends BasePoint {
-  heading: number;
-}
+type Point = BasePoint &
+  (
+    | {
+        heading: "linear";
+        startDeg: number;
+        endDeg: number;
+        degrees?: never;
+        reverse?: never;
+      }
+    | {
+        heading: "constant";
+        degrees: number;
+        startDeg?: never;
+        endDeg?: never;
+        reverse?: never;
+      }
+    | {
+        heading: "tangential";
+        degrees?: never;
+        startDeg?: never;
+        endDeg?: never;
+        reverse: boolean;
+      }
+  );
 
 type ControlPoint = BasePoint;
 

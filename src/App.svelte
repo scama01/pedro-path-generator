@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import Two from "two.js";
   import type { Path } from "two.js/src/path";
-  import type { Line } from "two.js/src/shapes/line";
+  import type { Line as PathLine } from "two.js/src/shapes/line";
   import ControlTab from "./lib/ControlTab.svelte";
   import Navbar from "./lib/Navbar.svelte";
   import {
@@ -11,6 +11,7 @@
     getMousePos,
     getRandomColor,
     quadraticToCubic,
+    radiansToDegrees,
     shortestRotation,
   } from "./utils";
 
@@ -24,10 +25,17 @@
 
   let percent: number = 0;
 
+  /**
+   * Converter for X axis from inches to pixels.
+   */
   $: x = d3
     .scaleLinear()
     .domain([0, 144])
     .range([0, twoElement?.clientWidth ?? 144]);
+
+  /**
+   * Converter for Y axis from inches to pixels.
+   */
   $: y = d3
     .scaleLinear()
     .domain([0, 144])
@@ -38,35 +46,16 @@
   let pointGroup = new Two.Group();
   pointGroup.id = "point-group";
 
-  let robotImage: string;
-
-  let startPoint = {
+  let startPoint: Point = {
     x: 9.757,
     y: 84.983,
-    heading: 0,
+    heading: "constant",
+    degrees: 0,
   };
-  let lines = [
+  let lines: Line[] = [
     {
-      endPoint: { x: 36.668, y: 84.983, heading: 0 },
+      endPoint: { x: 36.668, y: 84.983, heading: "tangential", reverse: false },
       controlPoints: [],
-      color: getRandomColor(),
-    },
-    {
-      endPoint: { x: 36.196, y: 122.124, heading: -90 },
-      controlPoints: [
-        { x: 25.495, y: 95.842 },
-        { x: 44.065, y: 107.016 },
-      ],
-      color: getRandomColor(),
-    },
-    {
-      endPoint: { x: 35.881, y: 13.691, heading: -90 },
-      controlPoints: [],
-      color: getRandomColor(),
-    },
-    {
-      endPoint: { x: 42.334, y: 121.809, heading: -90 },
-      controlPoints: [{ x: 120.393, y: 42.019 }],
       color: getRandomColor(),
     },
   ];
@@ -99,7 +88,7 @@
   })();
 
   $: path = (() => {
-    let _path: (Line | Path)[] = [];
+    let _path: (Path | PathLine)[] = [];
 
     lines.forEach((line, idx) => {
       let _startPoint = idx === 0 ? startPoint : lines[idx - 1].endPoint;
@@ -164,7 +153,7 @@
   })();
 
   let robotXY: BasePoint = { x: 0, y: 0 };
-  let robotHeading: number = startPoint.heading;
+  let robotHeading: number = 0;
 
   $: {
     let currentLineIdx = (lines.length * Math.min(percent, 99.999999999)) / 100;
@@ -173,20 +162,38 @@
     let currentLine =
       lines[Math.min(Math.trunc(currentLineIdx), lines.length - 1)];
 
-    let _startPoint =
-      Math.floor(currentLineIdx) === 0
-        ? startPoint
-        : lines[Math.floor(currentLineIdx) - 1].endPoint;
-
     let linePercent = easeInOutQuad(
       currentLineIdx - Math.floor(currentLineIdx)
     );
     robotXY = currentLinePath.getPointAt(linePercent) as BasePoint;
-    robotHeading = -shortestRotation(
-      _startPoint.heading,
-      currentLine.endPoint.heading,
-      linePercent
-    );
+
+    switch (currentLine.endPoint.heading) {
+      case "linear":
+        robotHeading = -shortestRotation(
+          currentLine.endPoint.startDeg,
+          currentLine.endPoint.endDeg,
+          linePercent
+        );
+        break;
+      case "constant":
+        robotHeading = -currentLine.endPoint.degrees;
+        break;
+      case "tangential":
+        const nextPoint = currentLinePath.getPointAt(
+          linePercent + (currentLine.endPoint.reverse ? -0.01 : 0.01)
+        );
+
+        const dx = nextPoint.x - robotXY.x;
+        const dy = nextPoint.y - robotXY.y;
+
+        if (dx !== 0 || dy !== 0) {
+          const angle = Math.atan2(dy, dx);
+
+          robotHeading = radiansToDegrees(angle);
+        }
+
+        break;
+    }
   }
 
   $: (() => {
@@ -206,7 +213,7 @@
     two.add(...path);
     two.add(...points);
 
-    two.play();
+    two.update();
   })();
 
   let playing = false;
@@ -226,7 +233,7 @@
       if (percent >= 100) {
         percent = 0;
       } else {
-        percent += (0.7 / lines.length) * (deltaTime * 0.1);
+        percent += (0.65 / lines.length) * (deltaTime * 0.1);
       }
     }
 
@@ -250,38 +257,6 @@
     console.log("pause");
     playing = false;
     cancelAnimationFrame(animationFrame);
-  }
-
-  $: {
-    let robotCanvas = document.createElement("canvas");
-    robotCanvas.width = x(robotWidth) * 2;
-    robotCanvas.height = x(robotWidth) * 2;
-    let robotCtx = robotCanvas.getContext("2d")!;
-
-    robotCtx.fillStyle = "white";
-    robotCtx.beginPath();
-    robotCtx.rect(0, 0, robotCanvas.width, robotCanvas.height);
-    robotCtx.fill();
-
-    robotCtx.strokeStyle = "red";
-    robotCtx.lineWidth = x(0.75) * 2;
-    robotCtx.beginPath();
-    robotCtx.moveTo(robotCanvas.width, robotCanvas.width / 2);
-    robotCtx.lineTo(robotCanvas.width / 2, robotCanvas.width / 2);
-    robotCtx.stroke();
-
-    robotCtx.fillStyle = "red";
-    robotCtx.beginPath();
-    robotCtx.arc(
-      robotCanvas.width / 2,
-      robotCanvas.width / 2,
-      x(pointRadius) * 2,
-      0,
-      2 * Math.PI
-    );
-    robotCtx.fill();
-
-    robotImage = robotCanvas.toDataURL("image/png");
   }
 
   onMount(() => {
@@ -330,6 +305,16 @@
       isDown = false;
     });
   });
+
+  document.addEventListener("keydown", function (evt) {
+    if (evt.code === "Space" && document.activeElement === document.body) {
+      if (playing) {
+        pause();
+      } else {
+        play();
+      }
+    }
+  });
 </script>
 
 <Navbar />
@@ -339,7 +324,7 @@
   <div class="flex h-full justify-center items-center">
     <div
       bind:this={twoElement}
-      class="h-full aspect-square rounded-lg shadow-md bg-neutral-50 relative overflow-clip"
+      class="h-full aspect-square rounded-lg shadow-md bg-neutral-50 dark:bg-neutral-900 relative overflow-clip"
     >
       <img
         src="/fields/centerstage.webp"
@@ -364,5 +349,9 @@
     bind:robotWidth
     bind:robotHeight
     bind:percent
+    bind:robotXY
+    bind:robotHeading
+    {x}
+    {y}
   />
 </div>

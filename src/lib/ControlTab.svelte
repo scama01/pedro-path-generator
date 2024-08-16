@@ -10,11 +10,15 @@
   export let lines: Line[];
   export let robotWidth: number;
   export let robotHeight: number;
+  export let robotXY: BasePoint;
+  export let robotHeading: number;
+  export let x: d3.ScaleLinear<number, number, number>;
+  export let y: d3.ScaleLinear<number, number, number>;
 </script>
 
 <div class="flex-1 flex flex-col justify-start items-center gap-2 h-full">
   <div
-    class="flex flex-col justify-start items-start w-full rounded-lg bg-neutral-50 shadow-md p-4 overflow-y-scroll h-full gap-6"
+    class="flex flex-col justify-start items-start w-full rounded-lg bg-neutral-50 dark:bg-neutral-900 shadow-md p-4 overflow-scroll h-full gap-6"
   >
     <div class="flex flex-col w-full justify-start items-start gap-0.5 text-sm">
       <div class="font-semibold">Canvas Options</div>
@@ -23,16 +27,32 @@
         <input
           bind:value={robotWidth}
           type="number"
-          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16"
+          class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-16"
           step="1"
         />
         <div class="font-extralight">Robot Height:</div>
         <input
           bind:value={robotHeight}
           type="number"
-          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16"
+          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-16 dark:bg-neutral-950 dark:border-neutral-700"
           step="1"
         />
+      </div>
+    </div>
+
+    <div class="flex flex-col w-full justify-start items-start gap-0.5 text-sm">
+      <div class="font-semibold">Current Robot Position</div>
+      <div class="flex flex-row justify-start items-center gap-2">
+        <div class="font-extralight">X:</div>
+        <div>{x.invert(robotXY.x).toFixed(3)}</div>
+        <div class="font-extralight">Y:</div>
+        <div>{y.invert(robotXY.y).toFixed(3)}</div>
+        <div class="font-extralight">Heading:</div>
+        <div>
+          {robotHeading.toFixed(0) === "-0"
+            ? "0"
+            : -robotHeading.toFixed(0)}&deg;
+        </div>
       </div>
     </div>
 
@@ -42,23 +62,20 @@
         <div class="font-extralight">X:</div>
         <input
           bind:value={startPoint.x}
+          min="0"
+          max="144"
           type="number"
-          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28 dark:bg-neutral-950 dark:border-neutral-700"
           step="0.1"
         />
         <div class="font-extralight">Y:</div>
         <input
           bind:value={startPoint.y}
+          min="0"
+          max="144"
           type="number"
-          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28 dark:bg-neutral-950 dark:border-neutral-700"
           step="0.1"
-        />
-        <div class="font-extralight">Heading:</div>
-        <input
-          bind:value={startPoint.heading}
-          class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-14"
-          step="1"
-          type="number"
         />
       </div>
     </div>
@@ -136,25 +153,62 @@
           <div class="flex flex-row justify-start items-center gap-2">
             <div class="font-extralight">X:</div>
             <input
-              class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+              class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-28"
               step="0.1"
               type="number"
+              min="0"
+              max="144"
               bind:value={line.endPoint.x}
             />
             <div class="font-extralight">Y:</div>
             <input
-              class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+              class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-28"
               step="0.1"
+              min="0"
+              max="144"
               type="number"
               bind:value={line.endPoint.y}
             />
-            <div class="font-extralight">Heading:</div>
-            <input
-              class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-14"
-              step="1"
-              type="number"
+
+            <select
               bind:value={line.endPoint.heading}
-            />
+              class=" rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-28 text-sm"
+            >
+              <option value="constant">Constant</option>
+              <option value="linear">Linear</option>
+              <option value="tangential">Tangential</option>
+            </select>
+
+            {#if line.endPoint.heading === "linear"}
+              <input
+                class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-14"
+                step="1"
+                type="number"
+                min="-180"
+                max="180"
+                bind:value={line.endPoint.startDeg}
+              />
+              <input
+                class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-14"
+                step="1"
+                type="number"
+                min="-180"
+                max="180"
+                bind:value={line.endPoint.endDeg}
+              />
+            {:else if line.endPoint.heading === "constant"}
+              <input
+                class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-14"
+                step="1"
+                type="number"
+                min="-180"
+                max="180"
+                bind:value={line.endPoint.degrees}
+              />
+            {:else if line.endPoint.heading === "tangential"}
+              <p class="text-sm font-extralight">Reverse:</p>
+              <input type="checkbox" bind:checked={line.endPoint.reverse} />
+            {/if}
           </div>
         </div>
         {#each line.controlPoints as point, idx1}
@@ -163,17 +217,21 @@
             <div class="flex flex-row justify-start items-center gap-2">
               <div class="font-extralight">X:</div>
               <input
-                class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+                class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-28"
                 step="0.1"
                 type="number"
                 bind:value={point.x}
+                min="0"
+                max="144"
               />
               <div class="font-extralight">Y:</div>
               <input
-                class="pl-1.5 rounded-md bg-neutral-100 border-[0.5px] focus:outline-none w-28"
+                class="pl-1.5 rounded-md bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-700 border-[0.5px] focus:outline-none w-28"
                 step="0.1"
                 type="number"
                 bind:value={point.y}
+                min="0"
+                max="144"
               />
               <button
                 title="Remove Control Point"
@@ -210,7 +268,8 @@
             endPoint: {
               x: _.random(0, 144),
               y: _.random(0, 144),
-              heading: lines[lines.length - 1].endPoint.heading,
+              heading: "tangential",
+              reverse: false,
             },
             controlPoints: [],
             color: getRandomColor(),
@@ -237,7 +296,7 @@
     </button>
   </div>
   <div
-    class="w-full bg-neutral-50 rounded-lg p-3 flex flex-row justify-start items-center gap-3 shadow-lg"
+    class="w-full bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3 flex flex-row justify-start items-center gap-3 shadow-lg"
   >
     <button
       title="Play/Pause"

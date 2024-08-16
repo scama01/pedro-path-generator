@@ -55,24 +55,29 @@ export function transformAngle(angle: number) {
 export function shortestRotation(
   startAngle: number,
   endAngle: number,
-  t: number
+  percentage: number
 ) {
-  // Normalize the angles to be between -180 and 180 degrees
+  // Normalize the angles to the range 0 to 360
   startAngle = (startAngle + 360) % 360;
   endAngle = (endAngle + 360) % 360;
-  if (startAngle > 180) startAngle -= 360;
-  if (endAngle > 180) endAngle -= 360;
 
-  // Calculate the difference
-  let delta = endAngle - startAngle;
+  // Calculate the difference between the angles
+  let difference = endAngle - startAngle;
 
-  // Find the shortest path
-  if (delta > 180) delta -= 360;
-  if (delta < -180) delta += 360;
+  // Adjust the difference to take the shortest path
+  if (difference > 180) {
+    difference -= 360;
+  } else if (difference < -180) {
+    difference += 360;
+  }
 
-  // Interpolate the angle based on the percentage
-  let result = startAngle + delta * t;
+  // Calculate the interpolated angle
+  let result = startAngle + difference * percentage;
 
-  // Normalize the result to be between 0 and 360
-  return transformAngle(result);
+  // Normalize the result to the range 0 to 360
+  return result;
+}
+
+export function radiansToDegrees(radians: number) {
+  return radians * (180 / Math.PI);
 }
