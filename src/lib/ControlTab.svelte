@@ -18,7 +18,7 @@
 
 <div class="flex-1 flex flex-col justify-start items-center gap-2 h-full">
   <div
-    class="flex flex-col justify-start items-start w-full rounded-lg bg-neutral-50 dark:bg-neutral-900 shadow-md p-4 overflow-scroll h-full gap-6"
+    class="flex flex-col justify-start items-start w-full rounded-lg bg-neutral-50 dark:bg-neutral-900 shadow-md p-4 overflow-y-scroll overflow-x-hidden h-full gap-6"
   >
     <div class="flex flex-col w-full justify-start items-start gap-0.5 text-sm">
       <div class="font-semibold">Canvas Options</div>
@@ -44,9 +44,9 @@
       <div class="font-semibold">Current Robot Position</div>
       <div class="flex flex-row justify-start items-center gap-2">
         <div class="font-extralight">X:</div>
-        <div>{x.invert(robotXY.x).toFixed(3)}</div>
+        <div class="w-16">{x.invert(robotXY.x).toFixed(3)}</div>
         <div class="font-extralight">Y:</div>
-        <div>{y.invert(robotXY.y).toFixed(3)}</div>
+        <div class="w-16">{y.invert(robotXY.y).toFixed(3)}</div>
         <div class="font-extralight">Heading:</div>
         <div>
           {robotHeading.toFixed(0) === "-0"

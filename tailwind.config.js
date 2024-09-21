@@ -5,7 +5,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
+        poppins: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      animation: {
+        modalf: "modalf 0.15s ease-in-out",
+      },
+      keyframes: {
+        modalf: {
+          "0%": { transform: "scale(0)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
     },
   },

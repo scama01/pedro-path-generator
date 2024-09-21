@@ -16,3 +16,7 @@
   [&::-webkit-slider-thumb]:rounded-full 
   [&::-webkit-slider-thumb]:bg-green-500;
 }
+
+code.hljs {
+  @apply rounded-md max-h-[42rem] overflow-scroll;
+}

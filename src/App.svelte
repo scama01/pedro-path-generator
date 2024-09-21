@@ -75,12 +75,47 @@
 
     lines.forEach((line, idx) => {
       [line.endPoint, ...line.controlPoints].forEach((point, idx1) => {
-        let pointElem = new Two.Circle(x(point.x), y(point.y), x(pointRadius));
-        pointElem.id = `point-${idx + 1}-${idx1}`;
-        pointElem.fill = line.color;
-        pointElem.noStroke();
+        if (idx1 > 0) {
+          let pointGroup = new Two.Group();
+          pointGroup.id = `point-${idx + 1}-${idx1}`;
 
-        _points.push(pointElem);
+          let pointElem = new Two.Circle(
+            x(point.x),
+            y(point.y),
+            x(pointRadius)
+          );
+          pointElem.id = `point-${idx + 1}-${idx1}-background`;
+          pointElem.fill = line.color;
+          pointElem.noStroke();
+
+          let pointText = new Two.Text(
+            `${idx1}`,
+            x(point.x),
+            y(point.y - 0.15),
+            x(pointRadius)
+          );
+          pointText.id = `point-${idx + 1}-${idx1}-text`;
+          pointText.size = x(1.55);
+          pointText.leading = 1;
+          pointText.family = "ui-sans-serif, system-ui, sans-serif";
+          pointText.alignment = "center";
+          pointText.baseline = "middle";
+          pointText.fill = "white";
+          pointText.noStroke();
+
+          pointGroup.add(pointElem, pointText);
+          _points.push(pointGroup);
+        } else {
+          let pointElem = new Two.Circle(
+            x(point.x),
+            y(point.y),
+            x(pointRadius)
+          );
+          pointElem.id = `point-${idx + 1}-${idx1}`;
+          pointElem.fill = line.color;
+          pointElem.noStroke();
+          _points.push(pointElem);
+        }
       });
     });
 
@@ -254,7 +289,6 @@
   }
 
   function pause() {
-    console.log("pause");
     playing = false;
     cancelAnimationFrame(animationFrame);
   }
@@ -315,9 +349,57 @@
       }
     }
   });
+
+  function saveFile() {
+    const jsonString = JSON.stringify({ startPoint, lines });
+
+    const blob = new Blob([jsonString], { type: "application/json" });
+
+    const linkObj = document.createElement("a");
+
+    const url = URL.createObjectURL(blob);
+
+    linkObj.href = url;
+    linkObj.download = "trajectory.pp";
+
+    document.body.appendChild(linkObj);
+
+    linkObj.click();
+
+    document.body.removeChild(linkObj);
+
+    URL.revokeObjectURL(url);
+  }
+
+  function loadFile(evt: Event) {
+    const elem = evt.target as HTMLInputElement;
+    const file = elem.files?.[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function (e: ProgressEvent<FileReader>) {
+        try {
+          const result = e.target?.result as string;
+
+          const jsonObj: {
+            startPoint: Point;
+            lines: Line[];
+          } = JSON.parse(result);
+
+          startPoint = jsonObj.startPoint;
+          lines = jsonObj.lines;
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      reader.readAsText(file);
+    }
+  }
 </script>
 
-<Navbar />
+<Navbar bind:lines bind:startPoint {saveFile} {loadFile} />
 <div
   class="w-screen h-screen pt-20 p-2 flex flex-row justify-center items-center gap-2"
 >
@@ -327,7 +409,7 @@
       class="h-full aspect-square rounded-lg shadow-md bg-neutral-50 dark:bg-neutral-900 relative overflow-clip"
     >
       <img
-        src="/fields/intothedeeprotated.webp"
+        src="/fields/intothedeep.webp"
         alt="Field"
         class="absolute top-0 left-0 w-full h-full rounded-lg z-10 pointer-events-none"
       />
